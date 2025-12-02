@@ -31,14 +31,13 @@ public class CSVReader {
                     continue;
                 }
 
-                // Découper la ligne avec le séparateur point-virgule
+                // Découper la ligne avec le séparateur point-virgule CSV quoi
                 String[] colonnes = ligne.split(";");
 
                 if (colonnes.length >= 3) {
                     // Colonne 1 : Nom du poste
                     String nomPoste = colonnes[0].trim();
 
-                    // Colonne 2 : Opérateur (format "Prénom Nom")
                     String[] nomComplet = colonnes[1].trim().split(" ");
                     String prenom = nomComplet.length > 0 ? nomComplet[0] : "Inconnu";
                     String nom = nomComplet.length > 1 ? nomComplet[1] : "";
@@ -77,7 +76,8 @@ public class CSVReader {
             String nomPiece = matcher.group(1).trim();
             int quantite = Integer.parseInt(matcher.group(2));
 
-            // Créer une étape (durée estimée = quantité * 5 minutes par exemple)
+            // Créer une étape (durée estimée = qtt*5 min par exemple pcq pour les etapes on
+            // a plus les temps officiels pcq Denis n'est jamais r)
             Etape etape = new Etape(numeroEtape++, nomPiece, quantite * 5, quantite);
             etapes.add(etape);
         }

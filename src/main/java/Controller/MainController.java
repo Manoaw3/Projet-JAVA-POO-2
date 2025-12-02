@@ -16,6 +16,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import java.io.File;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -39,7 +41,8 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        chargerPostes();
+        // chargerPostes(); // Ne plus charger automatiquement
+        startButton.setDisable(true); // Désactiver le bouton start au début
         configurerDependances();
         // Initialiser à 0 pour la simulation
         if (postes != null) {
@@ -48,8 +51,35 @@ public class MainController {
         afficherPostes();
     }
 
-    private void chargerPostes() {
-        String cheminCSV = "src/main/java/Data/poste.csv";
+    @FXML
+    private void importerCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner le fichier CSV des postes");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers CSV", "*.csv"));
+
+        // Point de départ (optionnel, dossier du proj)
+        File initialDir = new File("src/main/java/Data");
+        if (initialDir.exists()) {
+            fileChooser.setInitialDirectory(initialDir);
+        }
+
+        File selectedFile = fileChooser.showOpenDialog(stationsContainer.getScene().getWindow());
+
+        if (selectedFile != null) {
+            chargerPostes(selectedFile.getAbsolutePath());
+            configurerDependances();
+            // Initialiser à 0 pour la simulation
+            if (postes != null) {
+                postes.forEach(p -> p.setProgression(0.0));
+            }
+            afficherPostes();
+            startButton.setDisable(false);
+            startButton.setText("▶ Démarrer Production");
+            startButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white;");
+        }
+    }
+
+    private void chargerPostes(String cheminCSV) {
         postes = CSVReader.lirePostes(cheminCSV);
     }
 
