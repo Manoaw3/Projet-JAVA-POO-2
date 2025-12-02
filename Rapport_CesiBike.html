@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rapport de Projet : CesiBike</title>
+<style>
+    body { font-family: 'Calibri', 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+    h1 { color: #2E74B5; border-bottom: 2px solid #2E74B5; padding-bottom: 10px; }
+    h2 { color: #1F4E79; margin-top: 30px; border-bottom: 1px solid #ddd; }
+    h3 { color: #2E74B5; margin-top: 20px; }
+    p { margin-bottom: 15px; text-align: justify; }
+    ul { margin-bottom: 15px; }
+    li { margin-bottom: 5px; }
+    code { background-color: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: Consolas, monospace; color: #c7254e; }
+    pre { background-color: #f8f8f8; border: 1px solid #ddd; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: Consolas, monospace; }
+    .mermaid { background-color: #eef; padding: 10px; border: 1px dashed #99f; text-align: center; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>Rapport de Projet : CesiBike - Gestion d'Atelier</h1>
+
+<h2>1. Introduction</h2>
+
+<h3>1.1 Contexte</h3>
+<p>Dans le cadre de notre deuxième année, nous avons du réaliser le projet <strong>CesiBike</strong>. Il s'agit d'une application de gestion pour une usine d'assemblage de vélos. L'objectif principal est de fournir une interface graphique permettant de suivre l'avancement de la production sur les différents postes de travail en temps réel.</p>
+
+<h3>1.2 Objectifs</h3>
+<p>L'application doit répondre a plusieurs besoins :</p>
+<ul>
+    <li><strong>Visualisation</strong> : Afficher l'état de chaque poste (opérateur, progression).</li>
+    <li><strong>Gestion des Données</strong> : Importer la configuration de l'atelier depuis un fichier CSV.</li>
+    <li><strong>Simulation</strong> : Simuler la production avec des indicateurs visuels.</li>
+    <li><strong>Contraintes</strong> : Respecter les dépendances entre les taches (ex: le montage des roues ne peut commencer que si le cadre est prêt).</li>
+</ul>
+
+<hr>
+
+<h2>2. Architecture Logicielle</h2>
+
+<h3>2.1 Le Modèle MVC</h3>
+<p>Pour structurer notre code, nous avons utilisé le patron de conception <strong>MVC</strong> (Modèle-Vue-Contrôleur). Cela permet de bien séparer les responsabilités et de rendre le code plus lisible.</p>
+<ul>
+    <li><strong>Modèle</strong> : Contient les données et la logique.
+        <ul>
+            <li><code>Poste</code> : Représente un poste de travail.</li>
+            <li><code>Operateur</code> : Les infos sur la personne.</li>
+        </ul>
+    </li>
+    <li><strong>Vue</strong> : L'interface utilisateur en <strong>FXML</strong>.
+        <ul>
+            <li><code>main.fxml</code> : La fenêtre principale avec la grille.</li>
+        </ul>
+    </li>
+    <li><strong>Contrôleur</strong> : Fait le lien entre les deux.
+        <ul>
+            <li><code>MainController</code> : Gère l'initialisation et la boucle de simulation.</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>2.2 Diagramme de Classes</h3>
+<p>Voici le diagramme de classes simplifié de notre solution :</p>
+
+<div class="mermaid">
+    (Le schéma ci-dessous est au format Mermaid. Si il ne s'affiche pas, c'est un diagramme de classe standard)
+</div>
+<pre>
+classDiagram
+    class Main {
+        +start(Stage)
+        +main(String[])
+    }
+    class MainController {
+        -List~Poste~ postes
+        -Timeline simulationTimeline
+        +initialize()
+        +demarrerProduction()
+        -mettreAJourSimulation()
+    }
+    class CSVReader {
+        +lirePostes(String): List~Poste~
+    }
+    class Poste {
+        -String nom
+        -Double progression
+        -List~Integer~ dependances
+    }
+
+    Main --> MainController : Charge
+    MainController --> CSVReader : Utilise
+    MainController --> Poste : Gère
+    CSVReader ..> Poste : Crée
+</pre>
+
+<hr>
+
+<h2>3. Fonctionnalités Développées</h2>
+
+<h3>3.1 Importation des Données (CSV)</h3>
+<p>Nous avons développé une classe <code>CSVReader</code> pour lire le fichier <code>poste.csv</code>. Le format des données étant un peu complexe (avec des crochets <code>[]</code> pour les pièces), nous avons utilisé des <strong>Expressions Régulières (Regex)</strong> pour extraire les informations correctement.<br>
+Cela nous a permis de récupérer le nom du poste, l'opérateur et les étapes de fabrication.</p>
+
+<h3>3.2 Gestion des Dépendances</h3>
+<p>Une fonctionnalité importante est la gestion des blocages. Certains postes ne peuvent pas démarrer tant que les postes précédents n'ont pas terminé leur travail.<br>
+Dans le contrôleur, nous vérifions a chaque étape si les dépendances sont satisfaites (progression à 100%). Si ce n'est pas le cas, le poste reste bloqué et grisé pour l'utilisateur.</p>
+
+<h3>3.3 Simulation de Production</h3>
+<p>Pour simuler l'activité de l'usine, nous avons mis en place un système de progression aléatoire. Les barres de chargement avancent petit à petit pour imiter le temps de travail réel. Une fois la tache finie, la barre change de couleur.</p>
+
+<hr>
+
+<h2>4. Multithreading et Concurrence</h2>
+
+<p>Cette partie a été la plus complexe du projet. Il fallait gérer l'exécution des tâches sans bloquer l'interface graphique.</p>
+
+<h3>4.1 Le problème du Thread Unique</h3>
+<p>En JavaFX, comme dans beaucoup de frameworks, il n'y a qu'un seul thread pour gérer l'affichage (le <strong>Application Thread</strong>). Si on effectue des calculs longs ou des boucles infinies directement dans ce thread, l'application "gèle" et ne répond plus aux clics de la souris.<br>
+Nous avons rencontré ce problème au début en essayant de faire une boucle <code>while</code> simple.</p>
+
+<h3>4.2 Notre Solution : La classe <code>Timeline</code></h3>
+<p>Pour résoudre ce problème, nous avons choisi d'utiliser la classe <code>Timeline</code> de JavaFX.<br>
+Bien que ce ne soit pas du multithreading au sens strict (création de nouveaux threads CPU), cela permet d'exécuter du code de manière asynchrone par rapport aux actions de l'utilisateur.</p>
+
+<pre><code>// Exemple d'utilisation dans MainController
+simulationTimeline = new Timeline(new KeyFrame(Duration.millis(500), e -> mettreAJourSimulation()));
+simulationTimeline.setCycleCount(Timeline.INDEFINITE);
+simulationTimeline.play();
+</code></pre>
+
+<p>La <code>Timeline</code> déclenche la méthode <code>mettreAJourSimulation</code> toutes les 500ms. Comme cette méthode est courte (juste incrémenter une valeur), elle ne bloque pas l'interface. Cela donne l'illusion que tout tourne en même temps.</p>
+
+<h3>4.3 Alternative avec <code>Task</code></h3>
+<p>Si nous avions eu des calculs beaucoup plus lourds a faire, la <code>Timeline</code> n'aurait pas suffit car elle utilise quand même le thread principal.<br>
+Il aurait fallu utiliser la classe <code>Task</code> et lancer un vrai Thread séparé :</p>
+
+<pre><code>Task&lt;Void&gt; task = new Task&lt;Void&gt;() {
+    @Override protected Void call() throws Exception {
+        // Calculs lourds ici
+        return null;
+    }
+};
+new Thread(task).start();
+</code></pre>
+
+<p>Cependant, pour modifier l'interface depuis ce thread, il faut obligatoirement utiliser <code>Platform.runLater()</code>, sinon on obtient une erreur <code>IllegalStateException</code>.<br>
+Pour notre projet, la <code>Timeline</code> était la solution la plus adaptée et la plus simple a mettre en œuvre.</p>
+
+<hr>
+
+<h2>5. Conclusion</h2>
+
+<p>Ce projet nous a permis de mettre en pratique les notions vues en cours, notamment le MVC et la gestion des événements.<br>
+Nous avons compris l'importance de ne pas bloquer le thread principal pour garder une application fluide.<br>
+Même si notre simulation est basique, elle respecte bien les contraintes de dépendances demandées.</p>
+
+<p>Pour améliorer le projet, nous pourrions ajouter une base de données pour sauvegarder les résultats de la production.</p>
+
+<hr>
+<p><em>Rapport réalisé par le binôme.</em></p>
+
+</body>
+</html>

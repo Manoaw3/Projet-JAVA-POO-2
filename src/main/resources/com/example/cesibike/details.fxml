@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="500.0" prefWidth="700.0" styleClass="root" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.DetailController">
+   <top>
+      <HBox alignment="CENTER_RIGHT" spacing="10.0" style="-fx-padding: 10; -fx-border-color: black; -fx-border-width: 0 0 1 0;">
+         <Label text="--" style="-fx-border-color: black; -fx-padding: 2 5;" />
+         <Button fx:id="closeButton" text="X" style="-fx-background-color: #a00; -fx-text-fill: white; -fx-font-weight: bold;" />
+      </HBox>
+   </top>
+   <center>
+      <VBox spacing="20.0" style="-fx-padding: 20;">
+         <Label fx:id="posteTitle" text="Poste X" style="-fx-font-size: 18; -fx-border-color: black; -fx-padding: 5 15; -fx-background-radius: 10; -fx-border-radius: 10;" />
+         
+         <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+            <VBox spacing="20.0" HBox.hgrow="ALWAYS">
+               <VBox alignment="CENTER" style="-fx-border-color: black; -fx-border-radius: 20; -fx-background-radius: 20;" VBox.vgrow="ALWAYS">
+                  <ImageView fx:id="posteImage" fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
+                  <Label text="Image Poste" />
+               </VBox>
+               <VBox style="-fx-border-color: black;" VBox.vgrow="ALWAYS">
+                   <Label text="Description" style="-fx-font-weight: bold; -fx-padding: 5;" />
+                   <Label fx:id="descriptionLabel" text="Description..." wrapText="true" style="-fx-padding: 5;" VBox.vgrow="ALWAYS" />
+               </VBox>
+            </VBox>
+            
+            <VBox spacing="0.0" HBox.hgrow="ALWAYS">
+               <Label text="Liste Pièces" style="-fx-border-color: black; -fx-padding: 5; -fx-font-weight: bold; -fx-alignment: center;" maxWidth="Infinity" />
+               <TableView fx:id="piecesTable" VBox.vgrow="ALWAYS" style="-fx-border-color: black;">
+                 <columns>
+                   <TableColumn fx:id="pieceNameColumn" text="Nom" prefWidth="150.0" />
+                   <TableColumn fx:id="pieceQuantityColumn" text="Quantité" prefWidth="100.0" />
+                 </columns>
+               </TableView>
+            </VBox>
+         </HBox>
+      </VBox>
+   </center>
+</BorderPane>
